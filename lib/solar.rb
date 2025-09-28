@@ -9,4 +9,5 @@ module Solar
   autoload :Provider, "solar/provider"
   autoload :Forecast, "solar/forecast"
   autoload :Repository, "solar/repository"
+  autoload :Battery, "solar/battery"
 end

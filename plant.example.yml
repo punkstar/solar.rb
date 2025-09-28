@@ -10,9 +10,14 @@ installation:
   lon: -0.1419758
 
   inverter:
+    provider: fox
+    serial: SECRET
     power: 5000
 
   battery:
+    provider: fox
+    api_key: SECRET
+    serial: SECRET
     capacity: 11520
     minimum: 1152
 

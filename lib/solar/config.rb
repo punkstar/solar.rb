@@ -60,6 +60,26 @@ module Solar
       data.dig("forecast", "api_key")
     end
 
+    def battery_api_key
+      data.dig("installation", "battery", "api_key")
+    end
+
+    def battery_provider
+      data.dig("installation", "battery", "provider")
+    end
+
+    def battery_serial
+      data.dig("installation", "battery", "serial")
+    end
+
+    def inverter_provider
+      data.dig("installation", "inverter", "provider")
+    end
+
+    def inverter_serial
+      data.dig("installation", "inverter", "serial")
+    end
+
     def panel_groups
       data.dig("installation", "groups").map do |group|
         PanelGroup.new(

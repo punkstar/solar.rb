@@ -4,15 +4,15 @@ module Solar
       @database = database
     end
 
-    def save(records, table:)
+    def save(records)
       records.each do |record|
-        save_record(record, table:)
+        save_record(record)
       end
     end
 
     private
 
-    def save_record(record, table:)
+    def save_record(record)
       case record
       when Solar::Provider::Consumption
         @database[:consumption].insert_conflict(
@@ -72,6 +72,62 @@ module Solar
             provider: record.provider,
             direction: record.direction,
             tariff: record.tariff
+          )
+        when Solar::Battery::BatteryCharge
+          @database[:battery_charge].insert_conflict(
+            target: [:at],
+            update: { percentage: Sequel[:excluded][:percentage] }
+          ).insert(
+            percentage: record.percentage,
+            at: record.at
+          )
+        when Solar::Battery::GeneratedPower
+          @database[:solar_generated_power].insert_conflict(
+            target: [:at],
+            update: { watts: Sequel[:excluded][:watts] }
+          ).insert(
+            watts: record.watts,
+            at: record.at
+          )
+        when Solar::Battery::DischargePower
+          @database[:battery_discharge_power].insert_conflict(
+            target: [:at],
+            update: { watts: Sequel[:excluded][:watts] }
+          ).insert(
+            watts: record.watts,
+            at: record.at
+          )
+        when Solar::Battery::ChargePower
+          @database[:battery_charge_power].insert_conflict(
+            target: [:at],
+            update: { watts: Sequel[:excluded][:watts] }
+          ).insert(
+            watts: record.watts,
+            at: record.at
+          )
+        when Solar::Battery::GridDischargePower
+          @database[:grid_discharge_power].insert_conflict(
+            target: [:at],
+            update: { watts: Sequel[:excluded][:watts] }
+          ).insert(
+            watts: record.watts,
+            at: record.at
+          )
+        when Solar::Battery::GridChargePower
+          @database[:grid_charge_power].insert_conflict(
+            target: [:at],
+            update: { watts: Sequel[:excluded][:watts] }
+          ).insert(
+            watts: record.watts,
+            at: record.at
+          )
+        when Solar::Battery::LoadPower
+          @database[:load_power].insert_conflict(
+            target: [:at],
+            update: { watts: Sequel[:excluded][:watts] }
+          ).insert(
+            watts: record.watts,
+            at: record.at
           )
       else
         raise "Unknown record type: #{record.class}"
