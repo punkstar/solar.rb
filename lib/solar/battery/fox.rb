@@ -102,9 +102,7 @@ module Solar
         @history ||= @client.post(
           "/op/v0/device/history/query",
           {
-            sn: @serial_number,
-            begin: (Time.now.to_i - 24 * 60 * 60) * 1000,
-            end: Time.now.to_i * 1000
+            sn: @serial_number
           }
         ).then do |response|
           response.body.dig("result", 0, "datas")
