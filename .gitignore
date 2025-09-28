@@ -1,0 +1,30 @@
+# Ruby
+/.bundle/
+/.gems/
+/vendor/bundle/
+*.gem
+
+# Nix
+result
+result-*
+
+# direnv
+.direnv/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local configuration
+.env
+.env.local
+
+/plant.yml
+/pgdata
