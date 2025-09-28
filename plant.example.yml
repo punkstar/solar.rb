@@ -1,0 +1,35 @@
+forecast:
+  provider: solar_forecast
+  api_key: SECRET
+
+installation:
+  lat: 51.5012463
+  lon: -0.1419758
+
+  inverter:
+    power: 5000
+
+  battery:
+    capacity: 11520
+    minimum: 1152
+
+  meter:
+    provider: octopus
+    api_key: SECRET
+    mpan: SECRET
+    serial: SECRET
+    import_product: FLUX-IMPORT-23-02-14
+    import_tariff: E-1R-FLUX-IMPORT-23-02-14-L
+    export_product: FLUX-EXPORT-23-02-14
+    export_tariff: E-1R-FLUX-EXPORT-23-02-14-L
+
+  groups:
+    - azimuth: 45
+      panels: 4
+      panel_watts: 450
+      declination: 25
+
+    - azimuth: 135
+      panels: 9
+      panel_watts: 450
+      declination: 25
