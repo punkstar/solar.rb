@@ -1,3 +1,5 @@
+job_type :rake, "cd :path && ~/.rbenv/bin/rbenv exec bundle exec rake :task --silent :output"
+
 every 30.minutes do
   rake "consumption"
 end
