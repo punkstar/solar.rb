@@ -1,3 +1,6 @@
+database:
+  connection: postgres://postgres:password@127.0.0.1:15432/solar
+
 forecast:
   provider: solar_forecast
   api_key: SECRET

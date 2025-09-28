@@ -13,7 +13,7 @@ module Solar
     end
 
     def database
-      @database ||= Sequel.connect("postgres://postgres:password@127.0.0.1:15432/solar")
+      @database ||= Sequel.connect(data.dig("database", "connection"))
     end
 
     def meter_provider
