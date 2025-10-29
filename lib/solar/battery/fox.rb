@@ -108,6 +108,105 @@ module Solar
           response.body.dig("result", 0, "datas")
         end
       end
+
+      def work_mode
+        @client.post(
+          '/op/v0/device/setting/get',
+          {
+            sn: @serial_number,
+            key: "WorkMode"
+          }
+        ).then do |response|
+          response.body.dig("result", "value")
+        end
+      end
+
+      def clear_schedule!
+        # @client.post(
+        #   "/op/v2/device/scheduler/enable",
+        #   {
+        #     deviceSN: @serial_number,
+        #     groups: [{
+        #       enable: 0,
+        #       startHour: 0,
+        #       startMinute: 0,
+        #       endHour: 23,
+        #       endMinute: 59,
+        #       workMode: 'SelfUse',
+        #       extraParam: {
+        #         minSocOnGrid: 10,
+        #         fdSoc: 10,
+        #         fdPwr: 1000,
+        #         maxSoc: 100
+        #       }
+        #     }]
+        #   }
+        # )
+        @client.post(
+          '/op/v0/device/scheduler/enable',
+          {
+            deviceSN: @serial_number,
+            groups: [
+              {
+                enable: 1,
+                startHour: 0,
+                startMinute: 0,
+                endHour: 23,
+                endMinute: 59,
+                workMode: "SelfUse",
+                minSocOnGrid: 10,
+                fdSoc: 100,
+                fdPwr: 3000
+              }
+            ]
+          }
+        )
+      end
+
+      def force_discharge!
+        @client.post(
+          '/op/v0/device/scheduler/enable',
+          {
+            deviceSN: @serial_number,
+            groups: [
+              {
+                enable: 1,
+                startHour: 0,
+                startMinute: 0,
+                endHour: 23,
+                endMinute: 59,
+                workMode: "ForceDischarge",
+                minSocOnGrid: 10,
+                fdSoc: 10,
+                fdPwr: 3000
+              }
+            ]
+          }
+        )
+      end
+
+      def force_charge!
+        @client.post(
+          '/op/v0/device/scheduler/enable',
+          {
+            deviceSN: @serial_number,
+            groups: [
+              {
+                enable: 1,
+                startHour: 0,
+                startMinute: 0,
+                endHour: 23,
+                endMinute: 59,
+                workMode: "ForceCharge",
+                minSocOnGrid: 10,
+                maxSoc: 100,
+                fdSoc: 100,
+                fdPwr: 3000
+              }
+            ]
+          }
+        )
+      end
     end
   end
 end

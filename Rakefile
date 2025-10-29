@@ -127,3 +127,19 @@ task :load_power do
     Solar::Repository.new(database: config.database).save(data)
   end
 end
+
+task :work_mode do
+  puts fox.work_mode
+end
+
+task :clear_schedule do
+  puts fox.clear_schedule!.inspect
+end
+
+task :force_discharge do
+  puts fox.force_discharge!.inspect
+end
+
+task :force_charge do
+  puts fox.force_charge!.inspect
+end
