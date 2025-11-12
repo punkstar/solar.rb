@@ -37,7 +37,7 @@ task :forecast_solar do
   end
 end
 
-task :weather_forecast do
+task :forecast_weather do
   open_meteo.forecast(
     lat: config.installation_lat,
     lon: config.installation_lon
