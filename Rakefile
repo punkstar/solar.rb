@@ -17,6 +17,22 @@ fox = Solar::Battery::Fox.new(
   serial_number: config.inverter_serial
 )
 
+task :default => [
+  :consumption,
+  :forecast_solar,
+  :forecast_weather,
+  :import_rates,
+  :export_rates,
+  :agile_export_rates,
+  :agile_import_rates,
+  :battery_charge,
+  :solar_generated_power,
+  :battery_discharge_power,
+  :battery_charge_power,
+  :grid_discharge_power,
+  :grid_charge_power,
+]
+
 task :consumption do
   octopus.consumption(
     mpan: config.meter_mpan,
@@ -142,4 +158,22 @@ end
 
 task :force_charge do
   puts fox.force_charge!.inspect
+end
+
+namespace :strategy do
+  task :basic do
+    strategy = Solar::Strategy::Basic.new(
+      database: config.database,
+      config: config,
+      battery: fox,
+      plan_hours: 36
+    )
+
+    puts "Remaining battery power: #{strategy.remaining_battery_power} kwh"
+
+    plan = strategy.plan
+    plan.each do |group|
+      puts "#{group[:from].strftime("%H:%M")} - #{group[:to].strftime("%H:%M")}: #{group[:work_mode]} - import: £#{group[:import_rate].present? ? sprintf("%.3f", group[:import_rate]) : "N/A"}, export: £#{group[:export_rate].present? ? sprintf("%.3f", group[:export_rate]) : "N/A"} - remaining: #{sprintf("%.3f", group[:projected_remaining_battery_power])}kwh, cost: £#{sprintf("%.2f", group[:running_cost])}"
+    end
+  end
 end

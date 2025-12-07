@@ -17,3 +17,5 @@ gem "sequel", "~> 5.96"
 gem "pg", "~> 1.6"
 
 gem "whenever", "~> 1.0"
+
+gem "activesupport", "~> 8.1"

@@ -72,6 +72,18 @@ module Solar
       data.dig("installation", "battery", "serial")
     end
 
+    def battery_capacity
+      data.dig("installation", "battery", "capacity")
+    end
+
+    def battery_minimum
+      data.dig("installation", "battery", "minimum")
+    end
+
+    def battery_usable_capacity
+      battery_capacity - battery_minimum
+    end
+
     def inverter_provider
       data.dig("installation", "inverter", "provider")
     end

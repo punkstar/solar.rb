@@ -10,4 +10,5 @@ module Solar
   autoload :Forecast, "solar/forecast"
   autoload :Repository, "solar/repository"
   autoload :Battery, "solar/battery"
+  autoload :Strategy, "solar/strategy"
 end

@@ -1,6 +1,7 @@
 require "faraday"
 require "time"
 require "bigdecimal"
+require "active_support/all"
 
 module Solar
   module Provider
@@ -33,7 +34,13 @@ module Solar
       end
 
       def rates(product:, tariff:, direction:)
-        response = @client.get("/v1/products/#{product}/electricity-tariffs/#{tariff}/standard-unit-rates/")
+        from = (Time.now - 3.days).beginning_of_day
+        to = (Time.now + 7.days).beginning_of_day
+        
+        response = @client.get("/v1/products/#{product}/electricity-tariffs/#{tariff}/standard-unit-rates/", {
+          period_from: from.iso8601,
+          period_to: to.iso8601
+        }.compact)
 
         response.body.dig("results").map do |result|
           Rate.new(
