@@ -32,6 +32,6 @@ every 6.hours do
   rake "agile_import_rates"
 end
 
-every 20.minutes do
+every 15.minutes do
   rake "strategy:basic"
 end
