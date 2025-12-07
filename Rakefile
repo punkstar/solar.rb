@@ -202,7 +202,9 @@ namespace :strategy do
 
     message = "Updated Schedule:\n"
     grouped_plan.each do |group|
-      message += "#{group.to_s}\n"
+      message += "#{group.to_s}"
+      message += " (NOW)" if group.now?
+      message += "\n"
     end
 
     puts "Schedule set successfully!"

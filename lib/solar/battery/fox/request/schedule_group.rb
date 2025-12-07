@@ -112,7 +112,16 @@ module Solar
           end
 
           def to_s
-            "#{@start_hour}:#{@start_minute} - #{@end_hour}:#{@end_minute} - #{@work_mode}"
+            icon = case @work_mode
+            when WorkMode::SELF_USE
+              "🔋"
+            when WorkMode::FORCE_CHARGE
+              "⚡"
+            when WorkMode::FORCE_DISCHARGE
+              "💰"
+            end
+
+            "#{sprintf("%02d", @start_hour)}:#{sprintf("%02d", @start_minute)} - #{sprintf("%02d", @end_hour)}:#{sprintf("%02d", @end_minute)} - #{icon} #{@work_mode}"
           end
 
           def now?
