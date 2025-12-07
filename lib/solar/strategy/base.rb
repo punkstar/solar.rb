@@ -7,7 +7,7 @@ module Solar
       
       def initialize(timeslots:, battery_current_charge: 0, battery_usable_capacity: 0)
         @timeslots = timeslots
-        @battery_current_charge = battery_current_charge.to_f
+        @battery_current_charge_percentage = battery_current_charge.to_f
         @battery_usable_capacity = battery_usable_capacity.to_f
       end
 
@@ -92,7 +92,7 @@ module Solar
           import_rate = timeslot.import_rate
           export_rate = timeslot.export_rate
 
-          battery_full = (@battery_usable_capacity / 1000.0) - timeslot.projected_remaining_battery_power < 0.2
+          battery_full = battery_usable_capacity_kwh - timeslot.projected_remaining_battery_power < 0.2
          
           running_cost = if previous_timeslot.present?
             previous_timeslot.running_cost + case timeslot.work_mode
@@ -124,24 +124,24 @@ module Solar
             when WorkMode::SELF_USE
               previous_timeslot.projected_remaining_battery_power - timeslot.estimated_usage
             when WorkMode::CHARGE
-              (previous_timeslot.projected_remaining_battery_power + CHARGE_IN_30_M).clamp(0, @battery_usable_capacity / 1000.0)
+              (previous_timeslot.projected_remaining_battery_power + CHARGE_IN_30_M).clamp(0, battery_usable_capacity_kwh)
             when WorkMode::DISCHARGE
               previous_timeslot.projected_remaining_battery_power - DISCHARGE_IN_30_M
             end
           else
-            remaining_battery_power
+            battery_current_charge_kwh
           end
 
           timeslot.projected_remaining_battery_power = projected_remaining_battery_power.round(3)
         end
       end
 
-      # kwh
-      def remaining_battery_power
-        current_charge = @battery_current_charge / 100.0
-        usable_capacity = @battery_usable_capacity / 1000.0
+      def battery_current_charge_kwh
+        ((@battery_current_charge_percentage - 10) / 100.0) * battery_usable_capacity_kwh
+      end
 
-        (current_charge * usable_capacity).round(3)
+      def battery_usable_capacity_kwh
+        @battery_usable_capacity / 1000.0
       end
     end
   end
