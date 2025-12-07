@@ -6,6 +6,8 @@ module Solar
       MAX_POWER_KW = 5.0 # kW, max charge/discharge
       SLOT_HOURS = 0.5 # 30 minute slots
 
+      PEAK_EXPORT_RATE = 0.2922
+
       module Action
         CHARGE = "charge"
         DISCHARGE = "discharge"
@@ -26,21 +28,25 @@ module Solar
       )
 
       def plan
+        median_price = @timeslots.map { |timeslot| timeslot.import_rate }.sort[(@timeslots.count / 2).floor]
+
         @timeslots.each do |timeslot|
           add_projected_remaining_battery_power
 
           remaining_battery_power = timeslot.projected_remaining_battery_power
 
           off_peak = (timeslot.from.hour >= 0 && timeslot.from.hour < 6) || timeslot.import_rate < 0.1
-          peak = timeslot.from.hour >= 18 && timeslot.from.hour < 19
-          before_peak = timeslot.from.hour >= 15 && timeslot.from.hour < 18
+          peak = timeslot.from.hour >= 16 && timeslot.from.hour < 19
+          before_peak = timeslot.from.hour >= 12 && timeslot.from.hour < 16
 
           if off_peak
             timeslot.work_mode = WorkMode::CHARGE
-          elsif before_peak && remaining_battery_power < 3.0
+          elsif before_peak && remaining_battery_power < 8
             timeslot.work_mode = WorkMode::CHARGE
-          elsif peak && remaining_battery_power > 1.0
+          elsif peak && remaining_battery_power > 3.5
             timeslot.work_mode = WorkMode::DISCHARGE
+          elsif timeslot.import_rate < median_price && remaining_battery_power < 7.5
+            timeslot.work_mode = WorkMode::CHARGE
           end
         end
 

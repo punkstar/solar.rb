@@ -2,8 +2,8 @@ module Solar
   module Strategy
     class Base
       STANDING_CHARGE_30_M = 0.66 / 48.0 # p/kWh
-      CHARGE_IN_30_M = 1 # kwh
-      DISCHARGE_IN_30_M = 1 # kwh
+      CHARGE_IN_30_M = 2.5 # kwh
+      DISCHARGE_IN_30_M = 2.5 # kwh
       
       def initialize(timeslots:, battery_current_charge: 0, battery_usable_capacity: 0)
         @timeslots = timeslots
@@ -91,6 +91,8 @@ module Solar
           previous_timeslot = index > 0 ? @timeslots[index - 1] : nil
           import_rate = timeslot.import_rate
           export_rate = timeslot.export_rate
+
+          battery_full = (@battery_usable_capacity / 1000.0) - timeslot.projected_remaining_battery_power < 0.2
          
           running_cost = if previous_timeslot.present?
             previous_timeslot.running_cost + case timeslot.work_mode
@@ -101,7 +103,7 @@ module Solar
                 (import_rate * CHARGE_IN_30_M) + STANDING_CHARGE_30_M                
               end
             when WorkMode::CHARGE
-              (import_rate * CHARGE_IN_30_M) + STANDING_CHARGE_30_M
+              (battery_full ? 0 : import_rate * CHARGE_IN_30_M) + STANDING_CHARGE_30_M
             when WorkMode::DISCHARGE
               (export_rate * DISCHARGE_IN_30_M * -1) + STANDING_CHARGE_30_M
             end
