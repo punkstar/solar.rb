@@ -33,10 +33,11 @@ module Solar
 
           off_peak = (timeslot.from.hour >= 0 && timeslot.from.hour < 6) || timeslot.import_rate < 0.1
           peak = timeslot.from.hour >= 18 && timeslot.from.hour < 19
+          before_peak = timeslot.from.hour >= 15 && timeslot.from.hour < 18
 
           if off_peak
             timeslot.work_mode = WorkMode::CHARGE
-          elsif !peak && remaining_battery_power < 3.0
+          elsif before_peak && remaining_battery_power < 3.0
             timeslot.work_mode = WorkMode::CHARGE
           elsif peak && remaining_battery_power > 1.0
             timeslot.work_mode = WorkMode::DISCHARGE
