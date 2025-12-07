@@ -110,6 +110,10 @@ module Solar
       end
     end
 
+    def average_usage
+      data.dig("strategy", "average_usage") || {}
+    end
+
     private
 
     def data
