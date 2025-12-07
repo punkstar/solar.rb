@@ -110,6 +110,10 @@ module Solar
               fdPwr: @fd_pwr
             }
           end
+
+          def to_s
+            "#{@start_hour}:#{@start_minute} - #{@end_hour}:#{@end_minute} - #{@work_mode}"
+          end
         end
       end
     end

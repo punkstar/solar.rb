@@ -162,18 +162,39 @@ end
 
 namespace :strategy do
   task :basic do
-    strategy = Solar::Strategy::Basic.new(
+    strategy_input = Solar::Strategy::Input.new(
       database: config.database,
       config: config,
       battery: fox,
-      plan_hours: 36
+      plan_hours: 24
     )
 
-    puts "Remaining battery power: #{strategy.remaining_battery_power} kwh"
+    strategy = Solar::Strategy::Basic.new(
+      timeslots: strategy_input.timeslots,
+      battery_current_charge: strategy_input.battery_current_charge,
+      battery_usable_capacity: strategy_input.battery_usable_capacity
+    )
 
-    plan = strategy.plan
-    plan.each do |group|
-      puts "#{group[:from].strftime("%H:%M")} - #{group[:to].strftime("%H:%M")}: #{group[:work_mode]} - import: £#{group[:import_rate].present? ? sprintf("%.3f", group[:import_rate]) : "N/A"}, export: £#{group[:export_rate].present? ? sprintf("%.3f", group[:export_rate]) : "N/A"} - remaining: #{sprintf("%.3f", group[:projected_remaining_battery_power])}kwh, cost: £#{sprintf("%.2f", group[:running_cost])}"
+    strategy.plan.each do |timeslot|
+      puts "#{timeslot.from.strftime("%H:%M")} - #{timeslot.to.strftime("%H:%M")}: #{timeslot.work_mode} - import: £#{timeslot.import_rate.present? ? sprintf("%.3f", timeslot.import_rate) : "N/A"}, export: £#{timeslot.export_rate.present? ? sprintf("%.3f", timeslot.export_rate) : "N/A"} cost: £#{sprintf("%.2f", timeslot.running_cost || 0)} solar: #{sprintf("%.2f", timeslot.solar_kwh || 0)} - remaining: #{sprintf("%.2f", timeslot.projected_remaining_battery_power || 0)}kwh"
     end
+
+    grouped_plan = strategy.grouped_plan
+
+    grouped_plan.each do |group|
+      puts group.to_s
+    end
+
+    fox = Solar::Battery::Fox.new(
+      api_key: config.battery_api_key,
+      serial_number: config.inverter_serial
+    )
+
+    result = fox.set_scheduler!(
+      schedule_groups: grouped_plan
+    )
+
+    puts "Schedule set successfully!"
+    puts JSON.pretty_generate(result)
   end
 end
