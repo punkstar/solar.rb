@@ -1,7 +1,11 @@
+require "faraday"
+require "date"
+
 module Solar
   module Battery
     class Fox
       autoload :Middleware, "solar/battery/fox/middleware"
+      autoload :Request, "solar/battery/fox/request"
 
       def initialize(api_key:, serial_number:)
         @api_key = api_key
@@ -122,90 +126,68 @@ module Solar
       end
 
       def clear_schedule!
-        # @client.post(
-        #   "/op/v2/device/scheduler/enable",
-        #   {
-        #     deviceSN: @serial_number,
-        #     groups: [{
-        #       enable: 0,
-        #       startHour: 0,
-        #       startMinute: 0,
-        #       endHour: 23,
-        #       endMinute: 59,
-        #       workMode: 'SelfUse',
-        #       extraParam: {
-        #         minSocOnGrid: 10,
-        #         fdSoc: 10,
-        #         fdPwr: 1000,
-        #         maxSoc: 100
-        #       }
-        #     }]
-        #   }
-        # )
+        today = Date.today
+        from = DateTime.new(today.year, today.month, today.day, 0, 0, 0)
+        to = DateTime.new(today.year, today.month, today.day, 23, 59, 0)
+        schedule_group = Request::ScheduleGroup.self_use(from: from, to: to)
+
+        request = Request::DeviceSchedulerEnable.new(
+          serial_number: @serial_number,
+          schedule_groups: [schedule_group.to_h]
+        )
+
         @client.post(
-          '/op/v0/device/scheduler/enable',
-          {
-            deviceSN: @serial_number,
-            groups: [
-              {
-                enable: 1,
-                startHour: 0,
-                startMinute: 0,
-                endHour: 23,
-                endMinute: 59,
-                workMode: "SelfUse",
-                minSocOnGrid: 10,
-                fdSoc: 100,
-                fdPwr: 3000
-              }
-            ]
-          }
+          '/op/v1/device/scheduler/enable',
+          request.to_h
         )
       end
 
       def force_discharge!
+        today = Date.today
+        from = DateTime.new(today.year, today.month, today.day, 0, 0, 0)
+        to = DateTime.new(today.year, today.month, today.day, 23, 59, 0)
+        schedule_group = Request::ScheduleGroup.force_discharge(from: from, to: to)
+
+        request = Request::DeviceSchedulerEnable.new(
+          serial_number: @serial_number,
+          schedule_groups: [schedule_group.to_h]
+        )
+
         @client.post(
-          '/op/v0/device/scheduler/enable',
-          {
-            deviceSN: @serial_number,
-            groups: [
-              {
-                enable: 1,
-                startHour: 0,
-                startMinute: 0,
-                endHour: 23,
-                endMinute: 59,
-                workMode: "ForceDischarge",
-                minSocOnGrid: 10,
-                fdSoc: 10,
-                fdPwr: 3000
-              }
-            ]
-          }
+          '/op/v1/device/scheduler/enable',
+          request.to_h
         )
       end
 
       def force_charge!
-        @client.post(
-          '/op/v0/device/scheduler/enable',
-          {
-            deviceSN: @serial_number,
-            groups: [
-              {
-                enable: 1,
-                startHour: 0,
-                startMinute: 0,
-                endHour: 23,
-                endMinute: 59,
-                workMode: "ForceCharge",
-                minSocOnGrid: 10,
-                maxSoc: 100,
-                fdSoc: 100,
-                fdPwr: 3000
-              }
-            ]
-          }
+        today = Date.today
+        from = DateTime.new(today.year, today.month, today.day, 0, 0, 0)
+        to = DateTime.new(today.year, today.month, today.day, 23, 59, 0)
+        schedule_group = Request::ScheduleGroup.force_charge(from: from, to: to)
+
+        request = Request::DeviceSchedulerEnable.new(
+          serial_number: @serial_number,
+          schedule_groups: [schedule_group.to_h]
         )
+
+        @client.post(
+          '/op/v1/device/scheduler/enable',
+          request.to_h
+        )
+      end
+
+      def set_scheduler!(schedule_groups: [])
+        request = Request::DeviceSchedulerEnable.new(
+          serial_number: @serial_number,
+          schedule_groups: schedule_groups.map(&:to_h)
+        )
+
+        @client.post(
+          '/op/v1/device/scheduler/enable',
+          request.to_h
+        ).then do |response|
+          response.body
+        end
       end
     end
   end
