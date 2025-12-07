@@ -31,6 +31,10 @@ installation:
     export_product: FLUX-EXPORT-23-02-14
     export_tariff: E-1R-FLUX-EXPORT-23-02-14-L
 
+  telegram:
+    token: SECRET
+    chat_id: 1234567890
+
   groups:
     - azimuth: 45
       panels: 4

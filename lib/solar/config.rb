@@ -84,6 +84,14 @@ module Solar
       battery_capacity - battery_minimum
     end
 
+    def telegram_token
+      data.dig("installation", "telegram", "token")
+    end
+
+    def telegram_chat_id
+      data.dig("installation", "telegram", "chat_id")
+    end
+
     def inverter_provider
       data.dig("installation", "inverter", "provider")
     end

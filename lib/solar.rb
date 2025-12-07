@@ -11,4 +11,5 @@ module Solar
   autoload :Repository, "solar/repository"
   autoload :Battery, "solar/battery"
   autoload :Strategy, "solar/strategy"
+  autoload :Notify, "solar/notify"
 end

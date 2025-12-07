@@ -17,6 +17,11 @@ $fox = Solar::Battery::Fox.new(
   serial_number: $config.inverter_serial
 )
 
+$telegram = Solar::Notify::Telegram.new(
+  token: $config.telegram_token,
+  chat_id: $config.telegram_chat_id
+)
+
 task :default => [
   :consumption,
   :forecast_solar,
@@ -195,8 +200,21 @@ namespace :strategy do
       schedule_groups: grouped_plan
     )
 
+    message = "Updated Schedule:\n"
+    grouped_plan.each do |group|
+      message += "#{group.to_s}\n"
+    end
+
     puts "Schedule set successfully!"
     puts JSON.pretty_generate(result)
+
+    message += "Schedule set successfully!\n"
+    message += JSON.pretty_generate(result)
+
+    $telegram.send_message(message)
+  rescue StandardError => e
+    $telegram.send_message("Error setting schedule: #{e.message}")
+    raise e
   end
 
   task :basic_preview => [:battery_charge_power, :battery_charge] do
