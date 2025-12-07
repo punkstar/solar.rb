@@ -49,7 +49,7 @@ module Solar
         # Add the last group
         groups << current_group if current_group
 
-        groups.map do |group|
+        schedule_groups = groups.map do |group|
           {
             from: group[:from],
             to: group[:to] - 1.second,
@@ -74,6 +74,14 @@ module Solar
             )
           end
         end
+
+        while schedule_groups.count > 8
+          current_index = schedule_groups.find_index(&:now?)
+          previous_index = current_index - 1
+          schedule_groups.delete_at(previous_index)
+        end
+
+        schedule_groups
       end
 
       private

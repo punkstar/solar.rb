@@ -114,6 +114,14 @@ module Solar
           def to_s
             "#{@start_hour}:#{@start_minute} - #{@end_hour}:#{@end_minute} - #{@work_mode}"
           end
+
+          def now?
+            now = DateTime.now
+            from = DateTime.new(now.year, now.month, now.day, @start_hour, @start_minute, 0)
+            to = DateTime.new(now.year, now.month, now.day, @end_hour, @end_minute, 0)
+
+            now.between?(from, to)
+          end
         end
       end
     end
