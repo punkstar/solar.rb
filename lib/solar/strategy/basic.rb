@@ -17,7 +17,7 @@ module Solar
           peak = timeslot.from.hour >= 16 && timeslot.from.hour < 19
           before_peak = timeslot.from.hour >= 12 && timeslot.from.hour < 16
 
-          if super_off_peak
+          if super_off_peak # even if battery is full, so we pull cheaply from the grid.
             timeslot.work_mode = WorkMode::CHARGE
           elsif off_peak && !battery_full
             timeslot.work_mode = WorkMode::CHARGE
