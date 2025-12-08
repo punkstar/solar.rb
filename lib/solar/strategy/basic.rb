@@ -12,11 +12,14 @@ module Solar
           remaining_battery_power_kwh = timeslot.projected_remaining_battery_power
           battery_full = battery_usable_capacity_kwh - remaining_battery_power_kwh < 0.2
 
-          off_peak = (timeslot.from.hour >= 2 && timeslot.from.hour <= 5) || timeslot.import_rate < 0.1
+          super_off_peak = timeslot.import_rate < 0.1
+          off_peak = timeslot.from.hour >= 2 && timeslot.from.hour <= 5
           peak = timeslot.from.hour >= 16 && timeslot.from.hour < 19
           before_peak = timeslot.from.hour >= 12 && timeslot.from.hour < 16
 
-          if off_peak
+          if super_off_peak
+            timeslot.work_mode = WorkMode::CHARGE
+          elsif off_peak && !battery_full
             timeslot.work_mode = WorkMode::CHARGE
           elsif before_peak && remaining_battery_power_kwh < 6
             timeslot.work_mode = WorkMode::CHARGE
