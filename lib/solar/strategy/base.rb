@@ -84,6 +84,18 @@ module Solar
         schedule_groups
       end
 
+      def battery_current_charge_percentage
+        @battery_current_charge_percentage / 100.0
+      end
+
+      def battery_current_charge_kwh
+        (battery_current_charge_percentage) * (battery_usable_capacity_kwh)
+      end
+
+      def battery_usable_capacity_kwh
+        @battery_usable_capacity / 1000.0
+      end
+      
       private
 
       def add_running_cost
@@ -135,14 +147,7 @@ module Solar
           timeslot.projected_remaining_battery_power = projected_remaining_battery_power.round(3)
         end
       end
-
-      def battery_current_charge_kwh
-        ((@battery_current_charge_percentage - 10) / 100.0) * battery_usable_capacity_kwh
-      end
-
-      def battery_usable_capacity_kwh
-        @battery_usable_capacity / 1000.0
-      end
+    
     end
   end
 end

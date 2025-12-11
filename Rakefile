@@ -174,12 +174,15 @@ namespace :strategy do
       plan_hours: 24
     )
 
-    strategy = Solar::Strategy::Basic.new(
+    Solar::Strategy::Basic.new(
       timeslots: strategy_input.timeslots,
       battery_current_charge: strategy_input.battery_current_charge,
       battery_usable_capacity: strategy_input.battery_usable_capacity
     )
+  end
 
+  def basic_strategy_plan
+    strategy = basic_strategy
     strategy.plan.each do |timeslot|
       puts "#{timeslot.from.strftime("%H:%M")} - #{timeslot.to.strftime("%H:%M")}: #{timeslot.work_mode} - import: £#{timeslot.import_rate.present? ? sprintf("%.3f", timeslot.import_rate) : "N/A"}, export: £#{timeslot.export_rate.present? ? sprintf("%.3f", timeslot.export_rate) : "N/A"} cost: £#{sprintf("%.2f", timeslot.running_cost || 0)} solar: #{sprintf("%.2f", timeslot.solar_kwh || 0)} - remaining: #{sprintf("%.2f", timeslot.projected_remaining_battery_power || 0)}kwh"
     end
@@ -190,11 +193,11 @@ namespace :strategy do
       puts group.to_s
     end
 
-    grouped_plan
+    [strategy, grouped_plan]
   end
 
   task :basic => [:battery_charge_power, :battery_charge] do
-    grouped_plan = basic_strategy
+    strategy, grouped_plan = basic_strategy_plan
 
     result = $fox.set_scheduler!(
       schedule_groups: grouped_plan
@@ -207,9 +210,19 @@ namespace :strategy do
       message += "\n"
     end
 
+    puts ""
+    puts "Current charge: #{sprintf("%.2f", strategy.battery_current_charge_kwh)}kwh"
+    puts "Usable capacity: #{sprintf("%.2f", strategy.battery_usable_capacity_kwh)}kwh"
+    puts "Current charge percentage: #{sprintf("%.2f", strategy.battery_current_charge_percentage)}%"
+    puts ""
     puts "Schedule set successfully!"
     puts JSON.pretty_generate(result)
 
+    message += "\n"
+    message += "Current charge: #{sprintf("%.2f", strategy.battery_current_charge_kwh)}kwh\n"
+    message += "Usable capacity: #{sprintf("%.2f", strategy.battery_usable_capacity_kwh)}kwh\n"
+    message += "Current charge percentage: #{sprintf("%.2f", strategy.battery_current_charge_percentage * 100.0)}%\n"
+    message += "\n"
     message += "Schedule set successfully!\n"
     message += JSON.pretty_generate(result)
 
@@ -220,6 +233,6 @@ namespace :strategy do
   end
 
   task :basic_preview => [:battery_charge_power, :battery_charge] do
-    basic_strategy
+    basic_strategy_plan
   end
 end
